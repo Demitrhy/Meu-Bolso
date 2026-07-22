@@ -39,7 +39,7 @@
   @media (min-width:500px){
     body{background:#000; display:flex; align-items:center; justify-content:center;}
     #app{height:min(880px,94dvh); border-radius:46px; box-shadow:0 24px 70px rgba(0,0,0,.6); border:11px solid #0a0a0a; outline:1px solid #222;}
-    #tabbar,#backdrop,#sheet{position:absolute;}
+    #backdrop,#sheet{position:absolute;}
   }
 
   /* ---------- Header ---------- */
@@ -50,7 +50,7 @@
   .hbtn.plus{ width:34px; height:34px; border-radius:50%; background:var(--fill); font-size:22px; font-weight:400; justify-content:center; padding:0; color:var(--blue); }
 
   /* ---------- Screen ---------- */
-  #screen{ flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 16px 100px; }
+  #screen{ flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 16px 24px; }
 
   .hero{ background:linear-gradient(135deg,#0A84FF,#0060DF); color:#fff; border-radius:22px; padding:20px 22px; margin:10px 0 16px; box-shadow:0 10px 24px rgba(10,132,255,.28); }
   .hero.neg{background:linear-gradient(135deg,#FF453A,#D70015); box-shadow:0 10px 24px rgba(255,69,58,.28);}
@@ -156,7 +156,7 @@
   .goal-eta2 b{color:var(--text);}
 
   /* ---------- Tab bar ---------- */
-  #tabbar{ position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; background:var(--bar); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:.5px solid var(--sep); }
+  #tabbar{ flex:0 0 auto; display:flex; padding-bottom:env(safe-area-inset-bottom); background:var(--bar); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:.5px solid var(--sep); }
   #tabbar button{flex:1; padding:10px 0 12px; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text2); font-size:10.5px; font-weight:600;}
   #tabbar button .ti{font-size:23px; line-height:1;}
   #tabbar button.on{color:var(--blue);}
@@ -203,7 +203,7 @@
 
 /* ===================== DATA ===================== */
 const KEY='meubolso_v1';
-const VERSION='1.0.0'; // <-- incrementar a cada atualização pra conferir no rodapé
+const VERSION='1.1.1'; // <-- incrementar a cada atualização pra conferir no rodapé
 const CATS=[
   {id:'moradia',emoji:'🏠',name:'Moradia',color:'#FF9F40'},
   {id:'alimentacao',emoji:'🍽️',name:'Alimentação',color:'#FF6B6B'},
@@ -272,7 +272,8 @@ function monthItems(k){
   for(const e of state.expenses){
     if(e.type==='monthly'){
       const day=Math.min(e.day||1, daysIn(y,m));
-      items.push({...e, date:`${k}-${String(day).padStart(2,'0')}`, paid:(e.paidMonths||[]).includes(k)});
+      const amt=(e.amounts && e.amounts[k]!=null) ? e.amounts[k] : e.amount; // valor específico do mês, se houver
+      items.push({...e, amount:amt, custom:!!(e.amounts && e.amounts[k]!=null), date:`${k}-${String(day).padStart(2,'0')}`, paid:(e.paidMonths||[]).includes(k)});
     }else if(e.date && e.date.slice(0,7)===k){
       items.push({...e, paid:!!e.paid});
     }
@@ -377,7 +378,7 @@ function nrowHtml(it,k,today){
     if(it.date<today){ sub=`${nbDate(it.date)} • Atrasado`; subCls=' late'; }
     else { sub=`${nbDate(it.date)} • A pagar`; }
   }
-  const rec = it.type==='monthly' ? ' • fixo' : '';
+  const rec = it.type==='monthly' ? (it.custom ? ' • fixo ✏️' : ' • fixo') : '';
   return `<div class="nrow" onclick="app.editExpense('${it.id}')">
     <button class="nic" style="${style}" onclick="event.stopPropagation();app.togglePaid('${it.id}','${k}')">${icon}</button>
     <div class="nrow-mid">
@@ -548,8 +549,11 @@ const app={
     const editing=!!e;
     form.cat = e? e.category : 'contas';
     form.type = e? e.type : 'once';
+    form.editing = editing;
+    const mk = monthKey(view);
     const chips=CATS.map(c=>`<button class="chip ${form.cat===c.id?'on':''}" data-cat="${c.id}" onclick="app.pickCat('${c.id}')">${c.emoji} ${c.name}</button>`).join('');
-    const val = e? e.amount.toFixed(2).replace('.',',') : '';
+    const curAmt = e ? ((e.type==='monthly' && e.amounts && e.amounts[mk]!=null) ? e.amounts[mk] : e.amount) : 0;
+    const val = e? curAmt.toFixed(2).replace('.',',') : '';
     const dateVal = e&&e.type!=='monthly'? e.date : monthKey(view)+'-'+String(Math.min(new Date().getDate(),28)).padStart(2,'0');
     const dayVal = e&&e.type==='monthly'? e.day : 5;
     const isPaid = editing && (e.type==='monthly' ? (e.paidMonths||[]).includes(monthKey(view)) : !!e.paid);
@@ -572,6 +576,10 @@ const app={
       </div>
       <div class="field" id="wrap-date" style="${form.type==='monthly'?'display:none':''}"><label>Vencimento</label><input id="exp-date" type="date" value="${dateVal}"></div>
       <div class="field" id="wrap-day" style="${form.type==='monthly'?'':'display:none'}"><label>Dia do vencimento</label><input id="exp-day" type="number" min="1" max="31" value="${dayVal}"></div>
+      <div class="field" id="wrap-allmonths" style="${(editing && form.type==='monthly')?'':'display:none'}">
+        <div class="toggle-row"><span>Usar este valor em todos os meses</span><input type="checkbox" id="exp-allmonths"></div>
+        <p class="hint">Desmarcado, muda o valor <b>só em ${monthLabel(view)}</b> — ideal pra água/luz, que variam.<br>Marcado, vira o valor padrão de todos os meses.</p>
+      </div>
       <button class="save-btn" onclick="app.saveExpense('${e?e.id:''}')">${editing?'Salvar':'Adicionar'}</button>
       ${editing?`<button class="del-btn" onclick="app.deleteExpense('${e.id}')">Excluir gasto</button>`:''}
     `);
@@ -582,6 +590,7 @@ const app={
     document.querySelectorAll('#type-seg button').forEach((b,i)=>b.classList.toggle('on',(i===0)===(t==='once')));
     $('wrap-date').style.display = t==='monthly'?'none':'';
     $('wrap-day').style.display = t==='monthly'?'':'none';
+    const wa=$('wrap-allmonths'); if(wa) wa.style.display = (t==='monthly' && form.editing)?'':'none';
   },
   saveExpense(id){
     const name=$('exp-name').value.trim()||'Gasto';
@@ -589,9 +598,16 @@ const app={
     if(amount<=0){ $('exp-amount').focus(); return; }
     if(id){
       const e=state.expenses.find(x=>x.id===id);
-      e.name=name; e.amount=amount; e.category=form.cat; e.type=form.type;
-      if(form.type==='monthly'){ e.day=parseInt($('exp-day').value)||1; if(!e.paidMonths) e.paidMonths=[]; delete e.date; }
-      else { e.date=$('exp-date').value; delete e.day; delete e.paidMonths; }
+      const mk=monthKey(view);
+      e.name=name; e.category=form.cat; e.type=form.type;
+      if(form.type==='monthly'){
+        e.day=parseInt($('exp-day').value)||1; if(!e.paidMonths) e.paidMonths=[]; delete e.date;
+        const todos = $('exp-allmonths') ? $('exp-allmonths').checked : true;
+        if(todos){ e.amount=amount; if(e.amounts) delete e.amounts[mk]; }   // vira o padrão
+        else { e.amounts=e.amounts||{}; e.amounts[mk]=amount; }             // só neste mês
+      }else{
+        e.amount=amount; e.date=$('exp-date').value; delete e.day; delete e.paidMonths; delete e.amounts;
+      }
     }else{
       const base={id:uid(), name, amount, category:form.cat, type:form.type};
       if(form.type==='monthly'){ base.day=parseInt($('exp-day').value)||1; base.paidMonths=[]; }
