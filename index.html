@@ -28,10 +28,11 @@
     }
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; height:100%;}
+  html,body{margin:0; height:100%; overscroll-behavior:none;}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
-    background:var(--bg); color:var(--text); overflow:hidden;
+    background:var(--bg); color:var(--text);
+    position:fixed; inset:0; overflow:hidden;
     -webkit-font-smoothing:antialiased;
   }
   button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
@@ -75,6 +76,7 @@
   /* ---------- Screen ---------- */
   #screen{
     flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
     padding:6px 16px 24px;
   }
 
@@ -226,6 +228,29 @@
   .goal-info2{flex:1; min-width:0;}
   .goal-eta2{font-size:13.5px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--sep);}
   .goal-eta2 b{color:var(--text);}
+  .goal-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 2px;}
+  .goal-stat{background:var(--fill);border-radius:11px;padding:10px 12px;}
+  .goal-stat .gs-lab{font-size:11.5px;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:4px;}
+  .goal-stat .gs-val{font-size:16.5px;font-weight:800;margin-top:4px;letter-spacing:-.3px;}
+  .mt-wrap{display:flex;align-items:center;gap:5px;margin:14px 0 6px;flex-wrap:wrap;}
+  .mt-dot{width:10px;height:10px;border-radius:50%;background:var(--fill);flex:0 0 auto;transition:background .3s,transform .3s;}
+  .mt-dot.done{background:var(--green);}
+  .mt-dot.now{background:var(--blue);transform:scale(1.35);box-shadow:0 0 0 3px rgba(0,122,255,.25);}
+  .mt-bar-mini{flex:1;height:7px;border-radius:4px;background:var(--fill);overflow:hidden;min-width:60px;}
+  .mt-bar-mini>i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),#30B0C7);transition:width .5s;}
+  .mt-info{display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+  .mt-info span{font-size:12.5px;color:var(--text2);font-weight:600;}
+  .mt-info b{color:var(--text);}
+
+  /* alertas de vencimento */
+  .alist{display:flex; flex-direction:column; gap:12px; margin:14px 0 16px;}
+  .arow{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .amid{min-width:0;}
+  .aname{font-size:15.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .astatus{font-size:12.5px; font-weight:700; margin-top:2px;}
+  .aval{font-size:15.5px; font-weight:700; flex:0 0 auto;}
+  .cal-btn{width:100%; background:var(--blue); color:#fff; font-weight:700; padding:13px; border-radius:12px; font-size:15px;}
+  .cal-btn:active{opacity:.8;}
 
   /* ---------- Tab bar ---------- */
   #tabbar{
@@ -290,7 +315,7 @@
 
 /* ===================== DATA ===================== */
 const KEY='meubolso_v1';
-const VERSION='1.1.2'; // <-- incrementar a cada atualização pra conferir no rodapé
+const VERSION='1.4.0'; // <-- incrementar a cada atualização pra conferir no rodapé
 const CATS=[
   {id:'moradia',emoji:'🏠',name:'Moradia',color:'#FF9F40'},
   {id:'alimentacao',emoji:'🍽️',name:'Alimentação',color:'#FF6B6B'},
@@ -377,6 +402,90 @@ function totals(k){
   return {items, total, paid, pending:total-paid, income, balance:income-total};
 }
 
+/* ===================== ALERTAS DE VENCIMENTO ===================== */
+function daysUntil(iso){ const p=iso.split('-'); const d=new Date(+p[0],+p[1]-1,+p[2]); const n=new Date(); n.setHours(0,0,0,0); return Math.round((d-n)/86400000); }
+function dueAlerts(){
+  const now=new Date(), k=monthKey(now), todayS=todayStr();
+  const d3=new Date(now.getFullYear(),now.getMonth(),now.getDate()+3);
+  const soonS=`${d3.getFullYear()}-${String(d3.getMonth()+1).padStart(2,'0')}-${String(d3.getDate()).padStart(2,'0')}`;
+  const items=monthItems(k).filter(i=>!i.paid);
+  return {
+    overdue: items.filter(i=>i.date<todayS),
+    today:   items.filter(i=>i.date===todayS),
+    soon:    items.filter(i=>i.date>todayS && i.date<=soonS),
+    all:     items
+  };
+}
+function alertRow(it,kind){
+  const dd=daysUntil(it.date); const c=catOf(it.category);
+  let txt,cls;
+  if(kind==='atrasado'){ const n=Math.abs(dd); txt=`Venceu há ${n} ${n===1?'dia':'dias'}`; cls='red'; }
+  else if(kind==='hoje'){ txt='Vence hoje'; cls='yellow'; }
+  else { txt=`Vence em ${dd} ${dd===1?'dia':'dias'}`; cls='orange'; }
+  return `<div class="arow" onclick="app.go('gastos')">
+    <div class="amid"><div class="aname">${c.emoji} ${esc(it.name)}</div><div class="astatus ${cls}">${txt}</div></div>
+    <div class="aval">${money(it.amount)}</div>
+  </div>`;
+}
+function alertsHtml(){
+  if(monthKey(view)!==monthKey(new Date())) return ''; // alertas só no mês atual
+  const a=dueAlerts(), rows=[];
+  a.overdue.forEach(i=>rows.push(alertRow(i,'atrasado')));
+  a.today.forEach(i=>rows.push(alertRow(i,'hoje')));
+  a.soon.forEach(i=>rows.push(alertRow(i,'breve')));
+  if(!rows.length) return '';
+  return `<div class="card">
+    <div class="bd-head"><span>🔔 Vencimentos</span></div>
+    <div class="alist">${rows.join('')}</div>
+    <button class="cal-btn" onclick="app.calendarReminders()">📅 Lembrar no Calendário do iPhone</button>
+  </div>`;
+}
+function icsEsc(s){ return (''+s).replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n'); }
+function buildICS(bills){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MeuBolso//PT-BR//','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  bills.forEach(b=>{
+    const dt=b.date.replace(/-/g,'');
+    L.push('BEGIN:VEVENT');
+    L.push('UID:meubolso-'+b.id+'-'+b.date+'@meubolso.app');
+    L.push('DTSTAMP:'+dt+'T090000');
+    L.push('DTSTART:'+dt+'T090000');
+    L.push('DTEND:'+dt+'T093000');
+    if(b.type==='monthly') L.push('RRULE:FREQ=MONTHLY'); // conta fixa = lembrete todo mês
+    L.push('SUMMARY:'+icsEsc('💰 '+b.name+' — '+money(b.amount)));
+    L.push('DESCRIPTION:'+icsEsc('Conta a pagar • MeuBolso'));
+    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(b.name+' vence hoje'),'TRIGGER:PT0S','END:VALARM');
+    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(b.name+' vence amanhã'),'TRIGGER:-P1D','END:VALARM');
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.join('\r\n');
+}
+
+/* ===================== BOLETO (linha digitável) ===================== */
+function boletoParse(str){
+  const d=(str||'').replace(/\D/g,'');
+  const pad=n=>String(n).padStart(2,'0');
+  const inRange=dt=>{ const t=dt.getTime(), now=Date.now(); return t>now-45*864e5 && t<now+400*864e5; };
+  const dateFromFator=f=>{
+    if(!f) return null;
+    const base=new Date(1997,9,7).getTime();
+    let dt=new Date(base+f*864e5);
+    if(!inRange(dt)) dt=new Date(base+(f+9000)*864e5); // ajuste do "reset" de fator pós-2025
+    return inRange(dt) ? `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}` : null;
+  };
+  if(d.length===47){ // boleto bancário
+    const c5=d.substr(33,14);
+    const valor=parseInt(c5.substr(4,10),10)/100;
+    return {ok:true, valor:isFinite(valor)?valor:0, venc:dateFromFator(parseInt(c5.substr(0,4),10))};
+  }
+  if(d.length===48){ // concessionária (água/luz/telefone)
+    const bc=d.substr(0,11)+d.substr(12,11)+d.substr(24,11)+d.substr(36,11); // tira os DVs -> 44 dígitos
+    const valor=parseInt(bc.substr(4,11),10)/100;
+    return {ok:true, valor:isFinite(valor)?valor:0, venc:null}; // vencimento raramente vem codificado
+  }
+  return {ok:false};
+}
+
 /* ===================== RENDER ===================== */
 const $=id=>document.getElementById(id);
 function render(){
@@ -451,6 +560,7 @@ function renderResumo(){
     </div>
 
     ${welcome}
+    ${alertsHtml()}
 
     <div class="grid2">
       <div class="card stat" style="margin-bottom:0">
@@ -472,6 +582,7 @@ function renderResumo(){
 
     <div class="sec-title" style="margin-top:24px">Seus dados</div>
     <div class="datacard">
+      <button onclick="app.toggleNotif()">${notifEnabled()?'🔔 Notificações ativadas':'🔕 Ativar notificações de vencimento'}</button>
       <button onclick="app.exportData()">⬇️ Exportar backup</button>
       <button onclick="app.importData()">⬆️ Restaurar backup</button>
       <button class="danger" onclick="app.resetAll()">🗑️ Apagar tudo</button>
@@ -550,8 +661,8 @@ function seedDemo(){
     {id:uid(),name:'Cinema',amount:60,category:'lazer',type:'once',date:k+'-22',paid:false}
   ];
   state.goals=[
-    {id:uid(),name:'MacBook',target:5000,saved:1200},
-    {id:uid(),name:'Viagem Nordeste',target:3000,saved:450}
+    {id:uid(),name:'PS5',target:5000,saved:1000,monthly:1000},
+    {id:uid(),name:'Viagem Nordeste',target:3000,saved:450,monthly:500}
   ];
   save();
 }
@@ -587,7 +698,7 @@ function renderGastos(){
 
 function renderMetas(){
   const now=new Date();
-  const k=monthKey(now), t=totals(k); // capacidade = sobra do mês atual (Metas não tem seletor de mês)
+  const k=monthKey(now), t=totals(k);
   const cap=t.balance;
   if(!state.goals.length){
     $('screen').innerHTML=`<div class="empty"><span class="em">🎯</span>Nenhuma meta ainda.<br>Ex.: "MacBook R$ 5.000".<br>Toque em + pra criar.</div>`;
@@ -602,15 +713,49 @@ function renderMetas(){
     const remaining=Math.max(0,g.target-g.saved);
     const pct=g.target>0?Math.min(100,Math.round(g.saved/g.target*100)):0;
     const color=remaining<=0?'#34C759':COLORS[i%COLORS.length];
-    let eta;
-    if(remaining<=0){ eta=`🏆 <b>Meta atingida! Parabéns.</b>`; }
-    else if(cap>0){
-      const months=Math.ceil(remaining/cap);
-      const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+months);
-      eta=`📅 Faltam <b>${money(remaining)}</b> · ≈ <b>${months} ${months===1?'mês':'meses'}</b> (${monthShort(d)})`;
-    }else{
-      eta=`📅 Faltam <b>${money(remaining)}</b>`;
+    const monthly=(g.monthly && g.monthly>0)?g.monthly:cap;
+    const fromGoal=!!(g.monthly && g.monthly>0);
+    let statsHtml='',timelineHtml='',etaHtml='';
+
+    if(remaining<=0){
+      etaHtml=`<div class="goal-eta2">🏆 <b>Meta atingida! Parabéns.</b></div>`;
+    } else if(monthly>0){
+      const totalM=Math.ceil(g.target/monthly);
+      const leftM=Math.ceil(remaining/monthly);
+      const doneM=Math.max(0,totalM-leftM);
+      const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()+leftM);
+      const predLabel=monthShort(d);
+      const srcLabel=fromGoal?'definido por você':'sobra do mês';
+
+      statsHtml=`<div class="goal-stats">
+        <div class="goal-stat"><div class="gs-lab">💰 Guardando/mês</div><div class="gs-val green">${money(monthly)}</div></div>
+        <div class="goal-stat"><div class="gs-lab">📆 Previsão</div><div class="gs-val">${predLabel}</div></div>
+        <div class="goal-stat"><div class="gs-lab">📊 Progresso</div><div class="gs-val">${doneM} de ${totalM} ${totalM===1?'mês':'meses'}</div></div>
+        <div class="goal-stat"><div class="gs-lab">⏳ Ainda falta</div><div class="gs-val">${money(remaining)}</div></div>
+      </div>`;
+
+      if(totalM<=18){
+        let dots='';
+        for(let m=0;m<totalM;m++){
+          if(m<doneM) dots+=`<span class="mt-dot done"></span>`;
+          else if(m===doneM) dots+=`<span class="mt-dot now"></span>`;
+          else dots+=`<span class="mt-dot"></span>`;
+        }
+        timelineHtml=`<div class="mt-wrap">${dots}</div>
+          <div class="mt-info"><span>Mês <b>${doneM+1}</b> de <b>${totalM}</b></span><span><b>${leftM}</b> ${leftM===1?'mês restante':'meses restantes'}</span></div>`;
+      } else {
+        const barPct=Math.round(doneM/totalM*100);
+        timelineHtml=`<div class="mt-wrap"><div class="mt-bar-mini"><i style="width:${barPct}%"></i></div></div>
+          <div class="mt-info"><span>Mês <b>${doneM+1}</b> de <b>${totalM}</b></span><span><b>${leftM}</b> meses restantes</span></div>`;
+      }
+
+      etaHtml=`<div class="goal-eta2" style="margin-top:14px">
+        📅 Com <b>${money(monthly)}/mês</b> <span style="color:var(--text2)">(${srcLabel})</span>, faltam <b>${leftM} ${leftM===1?'mês':'meses'}</b> para concluir os <b>${totalM}</b>.
+      </div>`;
+    } else {
+      etaHtml=`<div class="goal-eta2">📅 Faltam <b>${money(remaining)}</b><br><span style="color:var(--text2)">Toque pra definir quanto guarda por mês.</span></div>`;
     }
+
     return `<div class="card">
       <div class="goal-top2" onclick="app.editGoal('${g.id}')">
         ${ring(pct, color, 76)}
@@ -619,7 +764,9 @@ function renderMetas(){
           <div class="goal-target">${money(g.saved)} de ${money(g.target)}</div>
         </div>
       </div>
-      <div class="goal-eta2">${eta}</div>
+      ${statsHtml}
+      ${timelineHtml}
+      ${etaHtml}
       ${remaining>0?`<button class="goal-btn" onclick="app.addToGoal('${g.id}')">+ Guardar dinheiro</button>`:''}
     </div>`;
   }).join('');
@@ -683,6 +830,9 @@ const app={
       <div class="grab"></div>
       <div class="sheet-head"><button onclick="app.close()">Cancelar</button><h2>${editing?'Editar gasto':'Novo gasto'}</h2><span style="width:60px"></span></div>
       ${payBtn}
+      ${editing ? '' : `<div class="field"><label>📋 Colar código do boleto</label>
+        <input id="exp-boleto" inputmode="numeric" placeholder="Cole aqui os números do boleto" oninput="app.parseBoleto()">
+        <p class="hint">Cole a linha digitável (~47 números) que eu preencho o valor e o vencimento. Sempre confira. 👍</p></div>`}
       <div class="field"><label>Descrição</label><input id="exp-name" placeholder="Ex.: Aluguel, Netflix..." value="${e?esc(e.name):''}"></div>
       <div class="field"><label>Valor</label><input id="exp-amount" inputmode="decimal" placeholder="R$ 0,00" value="${val}"></div>
       <div class="field"><label>Categoria</label><div class="chips" id="catchips">${chips}</div></div>
@@ -702,6 +852,15 @@ const app={
       <button class="save-btn" onclick="app.saveExpense('${e?e.id:''}')">${editing?'Salvar':'Adicionar'}</button>
       ${editing?`<button class="del-btn" onclick="app.deleteExpense('${e.id}')">Excluir gasto</button>`:''}
     `);
+  },
+  parseBoleto(){
+    const el=$('exp-boleto'); if(!el) return;
+    const digits=el.value.replace(/\D/g,'');
+    if(digits.length!==47 && digits.length!==48) return; // espera colar completo
+    const r=boletoParse(digits);
+    if(!r || !r.ok) return;
+    if(r.valor>0){ const a=$('exp-amount'); if(a) a.value=r.valor.toFixed(2).replace('.',','); }
+    if(r.venc){ this.pickType('once'); const dInp=$('exp-date'); if(dInp) dInp.value=r.venc; }
   },
   pickCat(id){ form.cat=id; document.querySelectorAll('#catchips .chip').forEach(ch=>ch.classList.toggle('on',ch.dataset.cat===id)); },
   pickType(t){
@@ -765,7 +924,8 @@ const app={
       <div class="field"><label>O que você quer?</label><input id="goal-name" placeholder="Ex.: MacBook, viagem..." value="${g?esc(g.name):''}"></div>
       <div class="field"><label>Quanto custa</label><input id="goal-target" inputmode="decimal" placeholder="R$ 0,00" value="${g?g.target.toFixed(2).replace('.',','):''}"></div>
       <div class="field"><label>Quanto já guardei</label><input id="goal-saved" inputmode="decimal" placeholder="R$ 0,00" value="${g?g.saved.toFixed(2).replace('.',','):'0,00'}"></div>
-      <p class="hint">O app calcula em quantos meses você chega lá, usando a sobra do mês (renda − gastos).</p>
+      <div class="field"><label>Quanto vou guardar por mês</label><input id="goal-monthly" inputmode="decimal" placeholder="Ex.: R$ 1.000,00" value="${(g&&g.monthly)?g.monthly.toFixed(2).replace('.',','):''}"></div>
+      <p class="hint">Ex.: meta R$ 5.000 guardando R$ 1.000/mês = 5 meses. Se deixar vazio, uso a sobra do seu mês.</p>
       <button class="save-btn" onclick="app.saveGoal('${g?g.id:''}')">${editing?'Salvar':'Criar meta'}</button>
       ${editing?`<button class="del-btn" onclick="app.deleteGoal('${g.id}')">Excluir meta</button>`:''}
     `);
@@ -774,9 +934,10 @@ const app={
     const name=$('goal-name').value.trim()||'Meta';
     const target=parseMoney($('goal-target').value);
     const saved=parseMoney($('goal-saved').value);
+    const monthly=parseMoney($('goal-monthly').value);
     if(target<=0){ $('goal-target').focus(); return; }
-    if(id){ const g=state.goals.find(x=>x.id===id); g.name=name; g.target=target; g.saved=saved; }
-    else state.goals.push({id:uid(), name, target, saved});
+    if(id){ const g=state.goals.find(x=>x.id===id); g.name=name; g.target=target; g.saved=saved; g.monthly=monthly; }
+    else state.goals.push({id:uid(), name, target, saved, monthly});
     save(); closeSheet(); render();
   },
   deleteGoal(id){
@@ -798,6 +959,24 @@ const app={
     const g=state.goals.find(x=>x.id===id);
     g.saved=Math.min(g.target, g.saved+parseMoney($('add-amount').value));
     save(); closeSheet(); render();
+  },
+
+  async calendarReminders(){
+    const bills=dueAlerts().all;
+    if(!bills.length){ alert('Nenhuma conta pendente pra lembrar. 🎉'); return; }
+    const ics=buildICS(bills);
+    const fname='meubolso-lembretes.ics';
+    try{
+      const file=new File([ics],fname,{type:'text/calendar'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Lembretes MeuBolso'}); return; }
+    }catch(e){ if(e && e.name==='AbortError') return; }
+    try{
+      const blob=new Blob([ics],{type:'text/calendar'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=fname;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},1500);
+    }catch(e){ alert('Não consegui gerar os lembretes.'); }
   },
 
   async exportData(){
@@ -840,12 +1019,49 @@ const app={
     state={defaultIncome:0, incomes:{}, expenses:[], goals:[]};
     save(); render();
   },
+  async toggleNotif(){
+    if(notifEnabled()){ localStorage.removeItem('meubolso_notif'); render(); return; }
+    if(!('Notification' in window)){ alert('Seu navegador não suporta notificações.'); return; }
+    const perm = await Notification.requestPermission();
+    if(perm==='granted'){ localStorage.setItem('meubolso_notif','1'); render(); checkBillNotifications(); }
+    else { alert('Permissão negada. Ative nas configurações do navegador.'); }
+  },
   close(){ closeSheet(); }
 };
 
 document.querySelectorAll('#tabbar button').forEach(b=>b.addEventListener('click',()=>{ tab=b.dataset.tab; fadeNext=true; render(); }));
 
+/* ===================== NOTIFICAÇÕES ===================== */
+function notifEnabled(){ return localStorage.getItem('meubolso_notif')==='1'; }
+function notifSend(title,body,tag){
+  if(Notification.permission!=='granted') return;
+  try{ new Notification(title,{body,icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:tag||'meubolso',silent:false}); }catch(e){}
+}
+function checkBillNotifications(){
+  if(!notifEnabled()||Notification.permission!=='granted') return;
+  const lastCheck=localStorage.getItem('meubolso_notif_last');
+  const todayS=todayStr();
+  if(lastCheck===todayS) return; // só notifica 1x por dia
+  localStorage.setItem('meubolso_notif_last',todayS);
+  const a=dueAlerts();
+  if(a.overdue.length){
+    const n=a.overdue.length;
+    const total=a.overdue.reduce((s,i)=>s+i.amount,0);
+    notifSend('⚠️ Contas atrasadas!',`${n} ${n===1?'conta atrasada':'contas atrasadas'} — total ${money(total)}`,'overdue');
+  }
+  if(a.today.length){
+    const n=a.today.length;
+    const nomes=a.today.map(i=>i.name).join(', ');
+    notifSend('📅 Vence hoje!',`${nomes} — ${money(a.today.reduce((s,i)=>s+i.amount,0))}`,'today');
+  }
+  if(a.soon.length){
+    const n=a.soon.length;
+    notifSend('🔔 Vencendo em breve',`${n} ${n===1?'conta':'contas'} nos próximos 3 dias`,'soon');
+  }
+}
+
 render();
+setTimeout(checkBillNotifications, 1500); // checa ao abrir o app
 </script>
 </body>
 </html>

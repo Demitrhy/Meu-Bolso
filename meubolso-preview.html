@@ -155,6 +155,16 @@
   .goal-eta2{font-size:13.5px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--sep);}
   .goal-eta2 b{color:var(--text);}
 
+  /* alertas de vencimento */
+  .alist{display:flex; flex-direction:column; gap:12px; margin:14px 0 16px;}
+  .arow{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .amid{min-width:0;}
+  .aname{font-size:15.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .astatus{font-size:12.5px; font-weight:700; margin-top:2px;}
+  .aval{font-size:15.5px; font-weight:700; flex:0 0 auto;}
+  .cal-btn{width:100%; background:var(--blue); color:#fff; font-weight:700; padding:13px; border-radius:12px; font-size:15px;}
+  .cal-btn:active{opacity:.8;}
+
   /* ---------- Tab bar ---------- */
   #tabbar{ flex:0 0 auto; display:flex; padding-bottom:env(safe-area-inset-bottom); background:var(--bar); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); border-top:.5px solid var(--sep); }
   #tabbar button{flex:1; padding:10px 0 12px; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text2); font-size:10.5px; font-weight:600;}
@@ -203,7 +213,7 @@
 
 /* ===================== DATA ===================== */
 const KEY='meubolso_v1';
-const VERSION='1.1.1'; // <-- incrementar a cada atualização pra conferir no rodapé
+const VERSION='1.3.0'; // <-- incrementar a cada atualização pra conferir no rodapé
 const CATS=[
   {id:'moradia',emoji:'🏠',name:'Moradia',color:'#FF9F40'},
   {id:'alimentacao',emoji:'🍽️',name:'Alimentação',color:'#FF6B6B'},
@@ -288,6 +298,90 @@ function totals(k){
   return {items, total, paid, pending:total-paid, income, balance:income-total};
 }
 
+/* ===================== ALERTAS DE VENCIMENTO ===================== */
+function daysUntil(iso){ const p=iso.split('-'); const d=new Date(+p[0],+p[1]-1,+p[2]); const n=new Date(); n.setHours(0,0,0,0); return Math.round((d-n)/86400000); }
+function dueAlerts(){
+  const now=new Date(), k=monthKey(now), todayS=todayStr();
+  const d3=new Date(now.getFullYear(),now.getMonth(),now.getDate()+3);
+  const soonS=`${d3.getFullYear()}-${String(d3.getMonth()+1).padStart(2,'0')}-${String(d3.getDate()).padStart(2,'0')}`;
+  const items=monthItems(k).filter(i=>!i.paid);
+  return {
+    overdue: items.filter(i=>i.date<todayS),
+    today:   items.filter(i=>i.date===todayS),
+    soon:    items.filter(i=>i.date>todayS && i.date<=soonS),
+    all:     items
+  };
+}
+function alertRow(it,kind){
+  const dd=daysUntil(it.date); const c=catOf(it.category);
+  let txt,cls;
+  if(kind==='atrasado'){ const n=Math.abs(dd); txt=`Venceu há ${n} ${n===1?'dia':'dias'}`; cls='red'; }
+  else if(kind==='hoje'){ txt='Vence hoje'; cls='yellow'; }
+  else { txt=`Vence em ${dd} ${dd===1?'dia':'dias'}`; cls='orange'; }
+  return `<div class="arow" onclick="app.go('gastos')">
+    <div class="amid"><div class="aname">${c.emoji} ${esc(it.name)}</div><div class="astatus ${cls}">${txt}</div></div>
+    <div class="aval">${money(it.amount)}</div>
+  </div>`;
+}
+function alertsHtml(){
+  if(monthKey(view)!==monthKey(new Date())) return '';
+  const a=dueAlerts(), rows=[];
+  a.overdue.forEach(i=>rows.push(alertRow(i,'atrasado')));
+  a.today.forEach(i=>rows.push(alertRow(i,'hoje')));
+  a.soon.forEach(i=>rows.push(alertRow(i,'breve')));
+  if(!rows.length) return '';
+  return `<div class="card">
+    <div class="bd-head"><span>🔔 Vencimentos</span></div>
+    <div class="alist">${rows.join('')}</div>
+    <button class="cal-btn" onclick="app.calendarReminders()">📅 Lembrar no Calendário do iPhone</button>
+  </div>`;
+}
+function icsEsc(s){ return (''+s).replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n'); }
+function buildICS(bills){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MeuBolso//PT-BR//','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+  bills.forEach(b=>{
+    const dt=b.date.replace(/-/g,'');
+    L.push('BEGIN:VEVENT');
+    L.push('UID:meubolso-'+b.id+'-'+b.date+'@meubolso.app');
+    L.push('DTSTAMP:'+dt+'T090000');
+    L.push('DTSTART:'+dt+'T090000');
+    L.push('DTEND:'+dt+'T093000');
+    if(b.type==='monthly') L.push('RRULE:FREQ=MONTHLY');
+    L.push('SUMMARY:'+icsEsc('💰 '+b.name+' — '+money(b.amount)));
+    L.push('DESCRIPTION:'+icsEsc('Conta a pagar • MeuBolso'));
+    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(b.name+' vence hoje'),'TRIGGER:PT0S','END:VALARM');
+    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(b.name+' vence amanhã'),'TRIGGER:-P1D','END:VALARM');
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.join('\r\n');
+}
+
+/* ===================== BOLETO (linha digitável) ===================== */
+function boletoParse(str){
+  const d=(str||'').replace(/\D/g,'');
+  const pad=n=>String(n).padStart(2,'0');
+  const inRange=dt=>{ const t=dt.getTime(), now=Date.now(); return t>now-45*864e5 && t<now+400*864e5; };
+  const dateFromFator=f=>{
+    if(!f) return null;
+    const base=new Date(1997,9,7).getTime();
+    let dt=new Date(base+f*864e5);
+    if(!inRange(dt)) dt=new Date(base+(f+9000)*864e5); // ajuste do "reset" de fator pós-2025
+    return inRange(dt) ? `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}` : null;
+  };
+  if(d.length===47){
+    const c5=d.substr(33,14);
+    const valor=parseInt(c5.substr(4,10),10)/100;
+    return {ok:true, valor:isFinite(valor)?valor:0, venc:dateFromFator(parseInt(c5.substr(0,4),10))};
+  }
+  if(d.length===48){
+    const bc=d.substr(0,11)+d.substr(12,11)+d.substr(24,11)+d.substr(36,11);
+    const valor=parseInt(bc.substr(4,11),10)/100;
+    return {ok:true, valor:isFinite(valor)?valor:0, venc:null};
+  }
+  return {ok:false};
+}
+
 /* ===================== RENDER ===================== */
 const $=id=>document.getElementById(id);
 function render(){
@@ -345,6 +439,7 @@ function renderResumo(){
         <div><small>PAGO</small><b>${pct}%</b></div>
       </div>
     </div>
+    ${alertsHtml()}
     <div class="grid2">
       <div class="card stat" style="margin-bottom:0">
         <div class="s-ic" style="background:${hexA('#34C759',.16)};color:var(--green)">✓</div>
@@ -564,6 +659,9 @@ const app={
       <div class="grab"></div>
       <div class="sheet-head"><button onclick="app.close()">Cancelar</button><h2>${editing?'Editar gasto':'Novo gasto'}</h2><span style="width:60px"></span></div>
       ${payBtn}
+      ${editing ? '' : `<div class="field"><label>📋 Colar código do boleto</label>
+        <input id="exp-boleto" inputmode="numeric" placeholder="Cole aqui os números do boleto" oninput="app.parseBoleto()">
+        <p class="hint">Cole a linha digitável (~47 números) que eu preencho o valor e o vencimento. Sempre confira. 👍</p></div>`}
       <div class="field"><label>Descrição</label><input id="exp-name" placeholder="Ex.: Aluguel, Netflix..." value="${e?esc(e.name):''}"></div>
       <div class="field"><label>Valor</label><input id="exp-amount" inputmode="decimal" placeholder="R$ 0,00" value="${val}"></div>
       <div class="field"><label>Categoria</label><div class="chips" id="catchips">${chips}</div></div>
@@ -583,6 +681,15 @@ const app={
       <button class="save-btn" onclick="app.saveExpense('${e?e.id:''}')">${editing?'Salvar':'Adicionar'}</button>
       ${editing?`<button class="del-btn" onclick="app.deleteExpense('${e.id}')">Excluir gasto</button>`:''}
     `);
+  },
+  parseBoleto(){
+    const el=$('exp-boleto'); if(!el) return;
+    const digits=el.value.replace(/\D/g,'');
+    if(digits.length!==47 && digits.length!==48) return;
+    const r=boletoParse(digits);
+    if(!r || !r.ok) return;
+    if(r.valor>0){ const a=$('exp-amount'); if(a) a.value=r.valor.toFixed(2).replace('.',','); }
+    if(r.venc){ this.pickType('once'); const dInp=$('exp-date'); if(dInp) dInp.value=r.venc; }
   },
   pickCat(id){ form.cat=id; document.querySelectorAll('#catchips .chip').forEach(ch=>ch.classList.toggle('on',ch.dataset.cat===id)); },
   pickType(t){
@@ -673,6 +780,23 @@ const app={
     const g=state.goals.find(x=>x.id===id);
     g.saved=Math.min(g.target, g.saved+parseMoney($('add-amount').value));
     save(); closeSheet(); render();
+  },
+  async calendarReminders(){
+    const bills=dueAlerts().all;
+    if(!bills.length){ alert('Nenhuma conta pendente pra lembrar. 🎉'); return; }
+    const ics=buildICS(bills);
+    const fname='meubolso-lembretes.ics';
+    try{
+      const file=new File([ics],fname,{type:'text/calendar'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Lembretes MeuBolso'}); return; }
+    }catch(e){ if(e && e.name==='AbortError') return; }
+    try{
+      const blob=new Blob([ics],{type:'text/calendar'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=fname;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},1500);
+    }catch(e){ alert('Não consegui gerar os lembretes.'); }
   },
   async exportData(){
     const fname='meubolso-backup-'+todayStr()+'.json';
