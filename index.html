@@ -56,6 +56,9 @@
     font-size:16px; color:var(--blue); font-weight:600; padding:6px 4px;
     display:flex; align-items:center; gap:4px;
   }
+  .top-actions{display:flex; align-items:center; gap:8px;}
+  .menu-btn{width:36px; height:34px; border-radius:11px; background:var(--fill); color:var(--text); font-size:21px; line-height:1; justify-content:center; padding:0;}
+  .menu-btn:active{background:var(--sep);}
   .hbtn.plus{
     width:34px; height:34px; border-radius:50%; background:var(--fill); font-size:22px;
     font-weight:400; justify-content:center; padding:0; color:var(--blue);
@@ -151,6 +154,34 @@
   .datacard button:active{background:var(--fill);}
   .datacard button + button{border-top:.5px solid var(--sep);}
   .datacard button.danger{color:var(--red);}
+  .summary-details{margin:16px 0;}
+  .summary-details-toggle{width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; text-align:left; border-radius:16px; background:var(--card); color:var(--text);}
+  .summary-details-toggle strong,.summary-details-toggle small{display:block;}
+  .summary-details-toggle strong{font-size:15px;}
+  .summary-details-toggle small{font-size:12px; color:var(--text2); margin-top:3px;}
+  .summary-details-action{color:var(--blue); font-size:13px; font-weight:700; white-space:nowrap;}
+  .summary-details-action b{font-size:18px; margin-left:4px;}
+  .summary-details-body{margin-top:10px;}
+  .summary-details-body .card{margin-bottom:0;}
+  .summary-menu-hint{display:flex; align-items:center; gap:11px; margin:10px 2px 26px; padding:12px 14px; border:1px solid var(--sep); border-radius:14px; color:var(--text2);}
+  .summary-menu-hint>span{width:32px; height:32px; display:grid; place-items:center; border-radius:9px; color:var(--blue); background:rgba(0,122,255,.12); font-size:20px;}
+  .summary-menu-hint strong,.summary-menu-hint small{display:block;}
+  .summary-menu-hint strong{color:var(--text); font-size:13px;}
+  .summary-menu-hint small{font-size:11.5px; line-height:1.35; margin-top:3px;}
+  .menu-intro{color:var(--text2); font-size:13px; line-height:1.45; margin:0 2px 18px;}
+  .menu-section-label{color:var(--text2); font-size:12px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; margin:16px 2px 8px;}
+  .menu-list{background:var(--card); border-radius:16px; overflow:hidden;}
+  .menu-row{width:100%; display:flex; align-items:center; gap:12px; padding:14px; text-align:left; background:var(--card); color:var(--text);}
+  .menu-row:active{background:var(--fill);}
+  .menu-row+.menu-row{border-top:.5px solid var(--sep);}
+  .menu-icon{width:36px; height:36px; flex:0 0 auto; display:grid; place-items:center; border-radius:11px; background:var(--fill); font-size:19px;}
+  .menu-row>span:nth-child(2){flex:1; min-width:0;}
+  .menu-row strong,.menu-row small{display:block;}
+  .menu-row strong{font-size:15px;}
+  .menu-row small{font-size:12px; color:var(--text2); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .menu-chevron{color:var(--text2); font-size:24px; line-height:1;}
+  .data-sheet-card{margin-top:16px;}
+  .data-privacy-note{text-align:center; color:var(--text2); font-size:11px; margin:13px 0 4px;}
 
   /* ---------- Month pills (Nubank style) ---------- */
   .mstrip{display:flex; gap:7px; padding:14px 0 4px;}
@@ -291,10 +322,29 @@
   .pay-btn{width:100%; padding:15px; border-radius:14px; font-size:17px; font-weight:800; margin:2px 0 18px; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--green); color:#fff;}
   .pay-btn.undo{background:var(--fill); color:var(--text);}
   .save-btn{width:100%; background:var(--blue); color:#fff; font-size:17px; font-weight:700; padding:15px; border-radius:14px; margin-top:8px;}
+  .save-btn:disabled{opacity:.45; cursor:not-allowed;}
   .del-btn{width:100%; background:transparent; color:var(--red); font-size:16px; font-weight:600; padding:14px; margin-top:6px;}
   .toggle-row{display:flex; align-items:center; justify-content:space-between; background:var(--card); padding:13px 14px; border-radius:13px; font-size:16px; font-weight:600;}
   .toggle-row input{width:auto; transform:scale(1.3); accent-color:var(--green);}
   .hint{font-size:12.5px; color:var(--text2); margin:6px 2px 0; line-height:1.4;}
+  .income-planner{padding:15px 16px;}
+  .income-planner-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px;}
+  .income-planner-sub{font-size:12px; color:var(--text2); margin-top:3px; text-transform:capitalize;}
+  .income-mode-pill{font-size:11px; font-weight:800; color:var(--blue); background:rgba(0,122,255,.1); border-radius:20px; padding:5px 9px; white-space:nowrap;}
+  .income-parts{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:13px 0 10px;}
+  .income-part{display:grid; grid-template-columns:1fr auto; gap:2px 8px; background:var(--fill); border-radius:11px; padding:9px 10px;}
+  .income-part span{font-size:12px; color:var(--text2); font-weight:700;}
+  .income-part b{font-size:14px; text-align:right;}
+  .income-part small{grid-column:1/-1; color:var(--text2); font-size:11px;}
+  .income-capacity{display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:.5px solid var(--sep); padding-top:11px;}
+  .income-capacity small{display:block; color:var(--text2); font-size:12px; font-weight:700;}
+  .income-capacity b{display:block; color:var(--green); font-size:24px; letter-spacing:-.4px; margin-top:2px;}
+  .income-capacity>span{width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:rgba(52,199,89,.14); font-size:18px;}
+  .income-planner-note{color:var(--text2); font-size:12px; line-height:1.45; margin-top:8px;}
+  .income-input-grid{display:grid; grid-template-columns:minmax(0,1.2fr) minmax(70px,.8fr); gap:0 10px;}
+  .income-total{color:var(--blue); background:rgba(0,122,255,.08); border-radius:12px; padding:11px 13px; font-size:14px; font-weight:600; margin:2px 0 14px;}
+  .income-total b{font-size:16px;}
+  .goal-save-hint{background:rgba(52,199,89,.08); border-top:0; border-radius:11px; padding:10px 12px; margin-top:10px; line-height:1.45;}
 </style>
 </head>
 <body>
@@ -315,7 +365,7 @@
 
 /* ===================== DATA ===================== */
 const KEY='meubolso_v1';
-const VERSION='1.4.0'; // <-- incrementar a cada atualização pra conferir no rodapé
+const VERSION='1.5.0'; // <-- incrementar a cada atualização pra conferir no rodapé
 const CATS=[
   {id:'moradia',emoji:'🏠',name:'Moradia',color:'#FF9F40'},
   {id:'alimentacao',emoji:'🍽️',name:'Alimentação',color:'#FF6B6B'},
@@ -332,9 +382,21 @@ const CATS=[
 const catOf=id=>CATS.find(c=>c.id===id)||CATS[CATS.length-1];
 function hexA(hex,a){ const n=parseInt(hex.replace('#',''),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
 
+function normalizeState(s){
+  const base=s&&typeof s==='object'?s:{};
+  base.defaultIncome=Number(base.defaultIncome)||0;
+  base.incomes=base.incomes&&typeof base.incomes==='object'?base.incomes:{};
+  base.incomeSchedules=base.incomeSchedules&&typeof base.incomeSchedules==='object'?base.incomeSchedules:{};
+  base.incomeModes=base.incomeModes&&typeof base.incomeModes==='object'?base.incomeModes:{};
+  base.defaultIncomeSchedule=Array.isArray(base.defaultIncomeSchedule)?base.defaultIncomeSchedule:[];
+  base.defaultIncomeMode=base.defaultIncomeMode==='fortnightly'?'fortnightly':'monthly';
+  base.expenses=Array.isArray(base.expenses)?base.expenses:[];
+  base.goals=Array.isArray(base.goals)?base.goals:[];
+  return base;
+}
 function load(){
-  try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&Array.isArray(s.expenses)) return s; }catch(e){}
-  return {defaultIncome:0, incomes:{}, expenses:[], goals:[]};
+  try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&Array.isArray(s.expenses)) return normalizeState(s); }catch(e){}
+  return normalizeState({});
 }
 let state=load();
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
@@ -344,6 +406,7 @@ let tab='resumo';
 let openSec={pagar:true, pago:true}; // seções recolhíveis (Gastos)
 let fadeNext=false; // dispara animação de transição no próximo render
 let form={}; // transient sheet state
+let summaryDetailsOpen=false;
 
 /* ===================== HELPERS ===================== */
 const fmt=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
@@ -377,7 +440,91 @@ function parseMoney(str){
   }
   const n=parseFloat(str); return isNaN(n)?0:n;
 }
-function getIncome(k){ return (k in state.incomes)? state.incomes[k] : (state.defaultIncome||0); }
+function cleanIncomeSchedule(schedule){
+  if(!Array.isArray(schedule)) return [];
+  return schedule.map((part,index)=>({
+    day:Math.min(31,Math.max(1,parseInt(part&&part.day,10)|| (index===0?1:15))),
+    amount:Math.max(0,Number(part&&part.amount)||0)
+  })).filter(part=>part.amount>0).sort((a,b)=>a.day-b.day);
+}
+function hasOwn(obj,key){ return Object.prototype.hasOwnProperty.call(obj,key); }
+function getIncomeMode(k){
+  if(state.incomeModes&&state.incomeModes[k]) return state.incomeModes[k]==='fortnightly'?'fortnightly':'monthly';
+  if(state.incomeSchedules&&cleanIncomeSchedule(state.incomeSchedules[k]).length>1) return 'fortnightly';
+  return state.defaultIncomeMode==='fortnightly'?'fortnightly':'monthly';
+}
+function getIncomeSchedule(k){
+  const specific=state.incomeSchedules&&hasOwn(state.incomeSchedules,k)?cleanIncomeSchedule(state.incomeSchedules[k]):[];
+  if(specific.length) return specific;
+  if(state.incomes&&hasOwn(state.incomes,k)) return [{day:1,amount:Math.max(0,Number(state.incomes[k])||0)}].filter(part=>part.amount>0);
+  const standard=cleanIncomeSchedule(state.defaultIncomeSchedule);
+  if(standard.length) return standard;
+  return state.defaultIncome>0?[{day:1,amount:state.defaultIncome}]:[];
+}
+function incomeUsesDefault(k){
+  const schedule=getIncomeSchedule(k), standard=cleanIncomeSchedule(state.defaultIncomeSchedule);
+  if(getIncomeMode(k)!==state.defaultIncomeMode) return false;
+  if(hasOwn(state.incomeSchedules,k)) return false;
+  if(hasOwn(state.incomes,k) && Math.abs((Number(state.incomes[k])||0)-getIncomeTotalFromSchedule(standard))>.01) return false;
+  return !standard.length || schedulesEqual(schedule,standard);
+}
+function schedulesEqual(a,b){
+  const aa=cleanIncomeSchedule(a), bb=cleanIncomeSchedule(b);
+  return aa.length===bb.length && aa.every((part,index)=>part.day===bb[index].day && Math.abs(part.amount-bb[index].amount)<.01);
+}
+function getIncomeTotalFromSchedule(schedule){ return cleanIncomeSchedule(schedule).reduce((sum,part)=>sum+part.amount,0); }
+function getIncome(k){ return getIncomeTotalFromSchedule(getIncomeSchedule(k)); }
+
+function incomeWindows(k){
+  const [y,m]=k.split('-').map(Number), days=daysIn(y,m), items=monthItems(k), schedule=getIncomeSchedule(k);
+  const paidItems=items.filter(item=>item.paid);
+  return schedule.map((part,index)=>{
+    const start=Math.min(part.day,days);
+    const next=schedule[index+1];
+    const end=index<schedule.length-1?Math.max(start,Math.min((next.day||days)-1,days)):days;
+    const periodItems=items.filter(item=>{ const day=parseInt((item.date||'').slice(8,10),10)||1; return day>=start&&day<=end; });
+    const pendingItems=periodItems.filter(item=>!item.paid);
+    // Pagamentos já feitos reduziram o caixa agora, mesmo que o vencimento
+    // esteja mais adiante. Eles entram na primeira quinzena uma única vez.
+    const paidForPeriod=index===0?paidItems:[];
+    const paidExpenses=paidForPeriod.reduce((sum,item)=>sum+item.amount,0);
+    const pendingExpenses=pendingItems.reduce((sum,item)=>sum+item.amount,0);
+    const expenses=paidExpenses+pendingExpenses;
+    return {...part,index,start,end,items:[...paidForPeriod,...pendingItems],expenses,paidExpenses,pendingExpenses,capacity:Math.max(0,part.amount-expenses)};
+  });
+}
+function monthContributionTotal(k,periodIndex=null){
+  let total=0;
+  for(const goal of state.goals||[]){
+    for(const contribution of Array.isArray(goal.contributions)?goal.contributions:[]){
+      if(String(contribution.date||'').slice(0,7)!==k) continue;
+      if(periodIndex!==null && Number(contribution.periodIndex)!==periodIndex) continue;
+      total+=Math.max(0,Number(contribution.amount)||0);
+    }
+  }
+  return total;
+}
+function getSavingCapacity(k,referenceDate=new Date()){
+  const windows=incomeWindows(k), refK=monthKey(referenceDate);
+  if(!windows.length) return {windows:[],current:null,currentIndex:0,availableNow:0,monthlyCapacity:0,next:null,received:0};
+  let currentIndex=0;
+  if(refK===k){
+    const day=referenceDate.getDate();
+    windows.forEach((window,index)=>{ if(window.start<=day) currentIndex=index; });
+  }else if(refK>k){ currentIndex=windows.length-1; }
+  const current=windows[currentIndex];
+  const allocatedCurrent=monthContributionTotal(k,refK===k?currentIndex:null);
+  const allocatedMonth=monthContributionTotal(k);
+  const monthlyCapacity=Math.max(0,windows.reduce((sum,window)=>sum+window.capacity,0)-allocatedMonth);
+  const availableNow=refK<k?0:Math.max(0,current.capacity-allocatedCurrent);
+  const received=refK===k?windows.slice(0,currentIndex+1).reduce((sum,window)=>sum+window.amount,0):(refK>k?getIncome(k):0);
+  return {windows,current,currentIndex,availableNow,monthlyCapacity,next:windows[currentIndex+1]||null,received};
+}
+function getGoalSavingLimit(goal,k=monthKey(new Date())){
+  const cap=getSavingCapacity(k,new Date()), remaining=Math.max(0,(Number(goal&&goal.target)||0)-(Number(goal&&goal.saved)||0));
+  const planned=goal&&Number(goal.monthly)>0?Number(goal.monthly):Infinity;
+  return Math.max(0,Math.min(remaining,planned,cap.availableNow));
+}
 
 /* build the list of items for a given month */
 function monthItems(k){
@@ -508,7 +655,57 @@ function renderTop(){
   else if(tab==='gastos') action=`<button class="hbtn plus" onclick="app.addExpense()">+</button>`;
   else action=`<button class="hbtn plus" onclick="app.addGoal()">+</button>`;
   const strip = tab!=='metas' ? monthStripHtml() : '';
-  $('topbar').innerHTML=`<div class="lt-row"><h1>${title}</h1>${action}</div>${strip}`;
+  $('topbar').innerHTML=`<div class="lt-row"><h1>${title}</h1><div class="top-actions">${action}<button class="hbtn menu-btn" onclick="app.openMenu()" aria-label="Abrir menu">☰</button></div></div>${strip}`;
+}
+
+function menuSheetHtml(){
+  const k=monthKey(view), items=monthItems(k), pending=items.filter(item=>!item.paid), goal=state.goals[0];
+  const pendingLabel=pending.length?`${pending.length} ${pending.length===1?'pagamento pendente':'pagamentos pendentes'}`:'Tudo em dia';
+  const goalLabel=goal?`${esc(goal.name)} · faltam ${money(Math.max(0,goal.target-goal.saved))}`:'Crie sua primeira meta';
+  return `<div class="grab"></div>
+    <div class="sheet-head"><button onclick="app.close()">Fechar</button><h2>Menu</h2><span style="width:60px"></span></div>
+    <p class="menu-intro">Acesse rapidamente as áreas do MeuBolso.</p>
+    <div class="menu-section-label">Navegação</div>
+    <div class="menu-list">
+      <button class="menu-row" onclick="app.addExpense()"><span class="menu-icon">＋</span><span><strong>Novo gasto</strong><small>Registrar uma conta ou compra</small></span><span class="menu-chevron">›</span></button>
+      <button class="menu-row" onclick="app.go('gastos')"><span class="menu-icon">🧾</span><span><strong>Gastos</strong><small>${pendingLabel}</small></span><span class="menu-chevron">›</span></button>
+      <button class="menu-row" onclick="app.go('metas')"><span class="menu-icon">🎯</span><span><strong>Metas</strong><small>${goalLabel}</small></span><span class="menu-chevron">›</span></button>
+    </div>
+    <div class="menu-section-label">Ferramentas</div>
+    <div class="menu-list">
+      <button class="menu-row" onclick="app.openDataSheet()"><span class="menu-icon">⚙️</span><span><strong>Seus dados</strong><small>Notificações, backup e privacidade</small></span><span class="menu-chevron">›</span></button>
+      <button class="menu-row" onclick="app.close();app.calendarReminders()"><span class="menu-icon">📅</span><span><strong>Lembretes</strong><small>Enviar contas para o calendário</small></span><span class="menu-chevron">›</span></button>
+    </div>`;
+}
+
+function dataSheetHtml(){
+  return `<div class="grab"></div>
+    <div class="sheet-head"><button onclick="app.openMenu()">Voltar</button><h2>Seus dados</h2><span style="width:60px"></span></div>
+    <p class="menu-intro">Tudo fica salvo neste aparelho. Exporte um backup antes de trocar de celular.</p>
+    <div class="datacard data-sheet-card">
+      <button onclick="app.close();app.toggleNotif()">${notifEnabled()?'🔔 Notificações ativadas':'🔕 Ativar notificações de vencimento'}</button>
+      <button onclick="app.close();app.exportData()">⬇️ Exportar backup</button>
+      <button onclick="app.close();app.importData()">⬆️ Restaurar backup</button>
+      <button class="danger" onclick="app.close();app.resetAll()">🗑️ Apagar tudo</button>
+    </div>
+    <div class="data-privacy-note">MeuBolso · Versão ${VERSION}<br>Seus dados ficam só neste aparelho.</div>`;
+}
+
+function incomePlannerHtml(k){
+  const schedule=getIncomeSchedule(k);
+  if(!schedule.length) return '';
+  const now=new Date(), isCurrent=monthKey(now)===k, cap=getSavingCapacity(k,now), current=cap.current;
+  const label=schedule.length>1?(current.index===0?'1ª quinzena':'2ª quinzena'):'Período do mês';
+  const available=isCurrent?cap.availableNow:cap.monthlyCapacity;
+  const rows=schedule.map((part,index)=>`<div class="income-part"><span>${schedule.length>1?(index===0?'1ª quinzena':'2ª quinzena'):'Entrada prevista'}</span><b>${money(part.amount)}</b><small>dia ${part.day}</small></div>`).join('');
+  const next=isCurrent&&cap.next?`Próxima entrada: <b>dia ${cap.next.start}</b> · ${money(cap.next.amount)}`:'';
+  const saved=monthContributionTotal(k);
+  return `<div class="card income-planner">
+    <div class="income-planner-head"><div><div class="bd-head"><span>${schedule.length>1?'Renda quinzenal':'Planejamento da renda'}</span></div><div class="income-planner-sub">${label} · saídas consideradas: ${money(current.expenses)}</div></div><span class="income-mode-pill">${schedule.length>1?'2 entradas':'1 entrada'}</span></div>
+    <div class="income-parts">${rows}</div>
+    <div class="income-capacity"><div><small>${isCurrent?'Disponível para guardar agora':'Disponível para guardar no mês'}</small><b>${money(available)}</b></div><span>💡</span></div>
+    <div class="income-planner-note">${isCurrent?`Depois das contas e pagamentos considerados (${money(current.expenses)}). ${next}`:'Estimativa baseada nas entradas e saídas previstas.'}${saved>0?` Já separado neste mês: <b>${money(saved)}</b>.`:''}</div>
+  </div>`;
 }
 
 function renderResumo(){
@@ -526,27 +723,6 @@ function renderResumo(){
       3️⃣ Crie uma <b>Meta</b> pra juntar dinheiro (ex.: um MacBook).
     </div></div>` : '';
 
-  let next = pend.length
-    ? `<div class="ncard">${pend.map(it=>nrowHtml(it,k,today)).join('')}</div>`
-    : `<div class="empty" style="padding:22px">🎉 Tudo em dia em ${view.toLocaleDateString('pt-BR',{month:'long'})}</div>`;
-
-  // meta preview com anel
-  let metasBlock='';
-  if(state.goals.length){
-    const g=state.goals[0];
-    const gp=g.target>0?Math.min(100,Math.round(g.saved/g.target*100)):0;
-    metasBlock=`
-      <div class="sec-title">Sua meta <a onclick="app.go('metas')">Ver metas ›</a></div>
-      <div class="card"><div class="goal-top2">
-        ${ring(gp, '#34C759', 72)}
-        <div class="goal-info2">
-          <div class="goal-name">${esc(g.name)}</div>
-          <div class="goal-target">${money(g.saved)} de ${money(g.target)}</div>
-          <div class="goal-target" style="margin-top:4px">Faltam <b style="color:var(--text)">${money(Math.max(0,g.target-g.saved))}</b></div>
-        </div>
-      </div></div>`;
-  }
-
   $('screen').innerHTML=`
     <div class="hero ${t.balance<0?'neg':''}">
       <div class="hero-top"><span class="hero-label">Saldo previsto</span><span class="hero-badge">${view.toLocaleDateString('pt-BR',{month:'long'})}</span></div>
@@ -558,6 +734,8 @@ function renderResumo(){
         <div><small>PAGO</small><b>${pct}%</b></div>
       </div>
     </div>
+
+    ${incomePlannerHtml(k)}
 
     ${welcome}
     ${alertsHtml()}
@@ -573,21 +751,15 @@ function renderResumo(){
       </div>
     </div>
 
-    ${breakdownHtml(t.items)}
-
-    <div class="sec-title">Próximos pagamentos <a onclick="app.go('gastos')">Ver todos ›</a></div>
-    ${next}
-
-    ${metasBlock}
-
-    <div class="sec-title" style="margin-top:24px">Seus dados</div>
-    <div class="datacard">
-      <button onclick="app.toggleNotif()">${notifEnabled()?'🔔 Notificações ativadas':'🔕 Ativar notificações de vencimento'}</button>
-      <button onclick="app.exportData()">⬇️ Exportar backup</button>
-      <button onclick="app.importData()">⬆️ Restaurar backup</button>
-      <button class="danger" onclick="app.resetAll()">🗑️ Apagar tudo</button>
+    <div class="summary-details">
+      <button class="summary-details-toggle" onclick="app.toggleSummaryDetails()">
+        <span><strong>Detalhes do mês</strong><small>Veja as categorias dos seus gastos · ${money(t.total)}</small></span>
+        <span class="summary-details-action">${summaryDetailsOpen?'Ocultar':'Ver detalhes'} <b>${summaryDetailsOpen?'⌃':'⌄'}</b></span>
+      </button>
+      ${summaryDetailsOpen?`<div class="summary-details-body">${breakdownHtml(t.items)}</div>`:''}
     </div>
-    <div class="ver">MeuBolso · Versão ${VERSION}<br>Seus dados ficam só neste aparelho — faça backup de vez em quando.</div>
+
+    ${localStorage.getItem('meubolso_menu_seen')==='1'?'':`<div class="summary-menu-hint"><span>☰</span><div><strong>Precisa de outra área?</strong><small>Use o menu no canto superior para acessar pagamentos, metas e seus dados.</small></div></div>`}
   `;
 }
 
@@ -699,22 +871,23 @@ function renderGastos(){
 function renderMetas(){
   const now=new Date();
   const k=monthKey(now), t=totals(k);
-  const cap=t.balance;
+  const cap=getSavingCapacity(k,new Date());
   if(!state.goals.length){
     $('screen').innerHTML=`<div class="empty"><span class="em">🎯</span>Nenhuma meta ainda.<br>Ex.: "MacBook R$ 5.000".<br>Toque em + pra criar.</div>`;
     return;
   }
-  const capLine = cap>0
-    ? `💡 Você consegue guardar <b>${money(cap)}/mês</b> — a sobra de ${now.toLocaleDateString('pt-BR',{month:'long'})}.`
-    : `⚠️ Este mês não sobra dinheiro pra guardar. Ajuste renda ou gastos em ${now.toLocaleDateString('pt-BR',{month:'long'})}.`;
+  const capLine = cap.availableNow>0
+    ? `💡 Nesta ${cap.windows.length>1?'quinzena':'etapa'}, você pode guardar até <b>${money(cap.availableNow)}</b> sem comprometer as contas e pagamentos considerados. ${cap.next?`A próxima entrada é dia <b>${cap.next.start}</b>, de ${money(cap.next.amount)}.`:''}`
+    : `⚠️ Por enquanto não sobra dinheiro para guardar nesta ${cap.windows.length>1?'quinzena':'etapa'}. Confira as contas e pagamentos considerados ou registre a próxima entrada.`;
 
   const COLORS=['#34C759','#5E5CE6','#FF9F0A','#FF375F','#3AC0E7'];
   const html = state.goals.map((g,i)=>{
     const remaining=Math.max(0,g.target-g.saved);
     const pct=g.target>0?Math.min(100,Math.round(g.saved/g.target*100)):0;
     const color=remaining<=0?'#34C759':COLORS[i%COLORS.length];
-    const monthly=(g.monthly && g.monthly>0)?g.monthly:cap;
+    const monthly=(g.monthly && g.monthly>0)?g.monthly:cap.monthlyCapacity;
     const fromGoal=!!(g.monthly && g.monthly>0);
+    const saveLimit=getGoalSavingLimit(g,k);
     let statsHtml='',timelineHtml='',etaHtml='';
 
     if(remaining<=0){
@@ -756,6 +929,8 @@ function renderMetas(){
       etaHtml=`<div class="goal-eta2">📅 Faltam <b>${money(remaining)}</b><br><span style="color:var(--text2)">Toque pra definir quanto guarda por mês.</span></div>`;
     }
 
+    const saveHint=remaining>0?`<div class="goal-eta2 goal-save-hint">💡 Agora, o limite seguro para esta meta é <b>${money(saveLimit)}</b> nesta ${cap.windows.length>1?'quinzena':'etapa'}.</div>`:'';
+
     return `<div class="card">
       <div class="goal-top2" onclick="app.editGoal('${g.id}')">
         ${ring(pct, color, 76)}
@@ -767,7 +942,8 @@ function renderMetas(){
       ${statsHtml}
       ${timelineHtml}
       ${etaHtml}
-      ${remaining>0?`<button class="goal-btn" onclick="app.addToGoal('${g.id}')">+ Guardar dinheiro</button>`:''}
+      ${saveHint}
+      ${remaining>0?`<button class="goal-btn" onclick="app.addToGoal('${g.id}')" ${saveLimit<=0?'disabled':''}>+ Guardar dinheiro</button>`:''}
     </div>`;
   }).join('');
 
@@ -783,28 +959,88 @@ $('backdrop').addEventListener('click', closeSheet);
 
 /* ===================== APP ACTIONS ===================== */
 const app={
-  go(t){ tab=t; fadeNext=true; render(); },
+  go(t){ closeSheet(); if(t!=='resumo') summaryDetailsOpen=false; tab=t; fadeNext=true; render(); },
   setMonthTo(y,m){ view=new Date(y,m,1); fadeNext=true; render(); },
   toggleSec(key){ openSec[key]=!openSec[key]; render(); },
+  openMenu(){ localStorage.setItem('meubolso_menu_seen','1'); openSheet(menuSheetHtml()); },
+  openDataSheet(){ openSheet(dataSheetHtml()); },
+  toggleSummaryDetails(){ summaryDetailsOpen=!summaryDetailsOpen; render(); },
 
   /* ---- Income ---- */
   editIncome(){
-    const k=monthKey(view);
+    const k=monthKey(view), schedule=getIncomeSchedule(k);
+    form.incomeMode=getIncomeMode(k);
+    const first=schedule[0]||{day:1,amount:0}, second=schedule[1]||{day:15,amount:0};
+    const useDefault=incomeUsesDefault(k);
     openSheet(`
       <div class="grab"></div>
       <div class="sheet-head"><button onclick="app.close()">Cancelar</button><h2>Renda</h2><span style="width:60px"></span></div>
-      <div class="field"><label>Renda de ${monthLabel(view)}</label>
-        <input id="inc-amount" inputmode="decimal" placeholder="R$ 0,00" value="${getIncome(k)?getIncome(k).toFixed(2).replace('.',','):''}"></div>
-      <div class="toggle-row"><span>Usar em todos os meses</span><input type="checkbox" id="inc-all" checked></div>
+      <div class="field"><label>Como você recebe?</label>
+        <div class="seg" id="income-type-seg">
+          <button class="${form.incomeMode==='monthly'?'on':''}" onclick="app.pickIncomeMode('monthly')">Mensal</button>
+          <button class="${form.incomeMode==='fortnightly'?'on':''}" onclick="app.pickIncomeMode('fortnightly')">Quinzenal</button>
+        </div>
+        <p class="hint">Quinzenal: informe quanto entra no dia 1 e no dia 15 (os dias podem ser ajustados).</p>
+      </div>
+      <div id="monthly-income-wrap" style="${form.incomeMode==='monthly'?'':'display:none'}">
+        <div class="field"><label>Renda de ${monthLabel(view)}</label>
+          <input id="inc-amount" inputmode="decimal" placeholder="R$ 0,00" value="${first.amount?first.amount.toFixed(2).replace('.',','):''}" oninput="app.updateIncomeTotal()"></div>
+      </div>
+      <div id="fortnight-income-wrap" style="${form.incomeMode==='fortnightly'?'':'display:none'}">
+        <div class="income-input-grid">
+          <div class="field"><label>1ª quinzena · valor</label><input id="inc-first-amount" inputmode="decimal" placeholder="R$ 0,00" value="${first.amount?first.amount.toFixed(2).replace('.',','):''}" oninput="app.updateIncomeTotal()"></div>
+          <div class="field"><label>Recebe no dia</label><input id="inc-first-day" type="number" min="1" max="31" value="${first.day||1}"></div>
+          <div class="field"><label>2ª quinzena · valor</label><input id="inc-second-amount" inputmode="decimal" placeholder="R$ 0,00" value="${second.amount?second.amount.toFixed(2).replace('.',','):''}" oninput="app.updateIncomeTotal()"></div>
+          <div class="field"><label>Recebe no dia</label><input id="inc-second-day" type="number" min="1" max="31" value="${second.day||15}"></div>
+        </div>
+      </div>
+      <div class="income-total" id="income-total"></div>
+      <div class="toggle-row"><span>Usar em todos os meses</span><input type="checkbox" id="inc-all" ${useDefault?'checked':''}></div>
       <p class="hint">Marcado, vira sua renda padrão. Desmarcado, vale só para ${monthLabel(view)}.</p>
       <button class="save-btn" onclick="app.saveIncome()">Salvar</button>
     `);
+    this.updateIncomeTotal();
+  },
+  pickIncomeMode(mode){
+    form.incomeMode=mode==='fortnightly'?'fortnightly':'monthly';
+    const monthly=$('monthly-income-wrap'), fortnight=$('fortnight-income-wrap');
+    if(monthly) monthly.style.display=form.incomeMode==='monthly'?'':'none';
+    if(fortnight) fortnight.style.display=form.incomeMode==='fortnightly'?'':'none';
+    document.querySelectorAll('#income-type-seg button').forEach((button,index)=>button.classList.toggle('on',(index===0)===(form.incomeMode==='monthly')));
+    this.updateIncomeTotal();
+  },
+  updateIncomeTotal(){
+    const total=form.incomeMode==='fortnightly'
+      ?parseMoney($('inc-first-amount')&&$('inc-first-amount').value)+parseMoney($('inc-second-amount')&&$('inc-second-amount').value)
+      :parseMoney($('inc-amount')&&$('inc-amount').value);
+    const totalEl=$('income-total');
+    if(totalEl) totalEl.innerHTML=`Total previsto no mês: <b>${money(total)}</b>`;
   },
   saveIncome(){
     const k=monthKey(view);
-    const v=parseMoney($('inc-amount').value);
-    state.incomes[k]=v;
-    if($('inc-all').checked) state.defaultIncome=v;
+    const mode=form.incomeMode==='fortnightly'?'fortnightly':'monthly';
+    let schedule;
+    if(mode==='fortnightly'){
+      const first=parseMoney($('inc-first-amount').value), second=parseMoney($('inc-second-amount').value);
+      if(first<=0||second<=0){ alert('Informe os dois valores da renda quinzenal.'); return; }
+      schedule=[{day:Math.min(31,Math.max(1,parseInt($('inc-first-day').value,10)||1)),amount:first},{day:Math.min(31,Math.max(1,parseInt($('inc-second-day').value,10)||15)),amount:second}];
+    }else{
+      const v=parseMoney($('inc-amount').value);
+      if(v<=0){ $('inc-amount').focus(); return; }
+      schedule=[{day:1,amount:v}];
+    }
+    schedule=cleanIncomeSchedule(schedule);
+    const total=getIncomeTotalFromSchedule(schedule);
+    if(schedule.length<(mode==='fortnightly'?2:1)){ alert('Confira os valores da renda.'); return; }
+    if($('inc-all').checked){
+      state.defaultIncome=total;
+      state.defaultIncomeMode=mode;
+      state.defaultIncomeSchedule=mode==='fortnightly'?schedule:[];
+      delete state.incomes[k]; delete state.incomeSchedules[k]; delete state.incomeModes[k];
+    }else{
+      state.incomes[k]=total; state.incomeModes[k]=mode;
+      if(mode==='fortnightly') state.incomeSchedules[k]=schedule; else delete state.incomeSchedules[k];
+    }
     save(); closeSheet(); render();
   },
 
@@ -947,17 +1183,28 @@ const app={
   },
   addToGoal(id){
     const g=state.goals.find(x=>x.id===id);
+    const cap=getSavingCapacity(monthKey(new Date()),new Date());
+    const limit=getGoalSavingLimit(g);
+    const suggested=limit>0?limit.toFixed(2).replace('.',','):'';
     openSheet(`
       <div class="grab"></div>
       <div class="sheet-head"><button onclick="app.close()">Cancelar</button><h2>Guardar</h2><span style="width:60px"></span></div>
-      <div class="field"><label>Adicionar em "${esc(g.name)}"</label><input id="add-amount" inputmode="decimal" placeholder="R$ 0,00"></div>
-      <button class="save-btn" onclick="app.confirmAddToGoal('${id}')">Guardar</button>
+      <div class="field"><label>Adicionar em "${esc(g.name)}"</label><input id="add-amount" inputmode="decimal" placeholder="R$ 0,00" value="${suggested}"></div>
+      <p class="hint">Você pode guardar até <b>${money(limit)}</b> agora${cap.current?` nesta ${cap.windows.length>1?'quinzena':'etapa'}`:''}, sem ultrapassar o que sobra depois das contas e pagamentos considerados.</p>
+      <button class="save-btn" onclick="app.confirmAddToGoal('${id}')" ${limit<=0?'disabled':''}>Guardar</button>
     `);
     setTimeout(()=>$('add-amount').focus(),300);
   },
   confirmAddToGoal(id){
     const g=state.goals.find(x=>x.id===id);
-    g.saved=Math.min(g.target, g.saved+parseMoney($('add-amount').value));
+    if(!g) return;
+    const amount=parseMoney($('add-amount').value), limit=getGoalSavingLimit(g);
+    if(amount<=0) return;
+    if(amount>limit){ alert(`Neste período, você pode guardar no máximo ${money(limit)} nesta meta.`); return; }
+    const cap=getSavingCapacity(monthKey(new Date()),new Date());
+    g.saved=Math.min(g.target, g.saved+amount);
+    g.contributions=Array.isArray(g.contributions)?g.contributions:[];
+    g.contributions.push({date:todayStr(),amount,periodIndex:cap.currentIndex});
     save(); closeSheet(); render();
   },
 
@@ -1005,7 +1252,7 @@ const app={
           const d=JSON.parse(r.result);
           if(!d || !Array.isArray(d.expenses)) throw new Error('bad');
           if(!confirm('Isso vai substituir seus dados atuais pelos do backup. Continuar?')) return;
-          state={defaultIncome:d.defaultIncome||0, incomes:d.incomes||{}, expenses:d.expenses||[], goals:d.goals||[]};
+          state=normalizeState({defaultIncome:d.defaultIncome||0, defaultIncomeMode:d.defaultIncomeMode, defaultIncomeSchedule:d.defaultIncomeSchedule, incomes:d.incomes||{}, incomeModes:d.incomeModes||{}, incomeSchedules:d.incomeSchedules||{}, expenses:d.expenses||[], goals:d.goals||[]});
           save(); render();
           alert('Backup restaurado! ✅');
         }catch(e){ alert('Arquivo inválido. Escolha um backup do MeuBolso (.json).'); }
@@ -1016,7 +1263,7 @@ const app={
   },
   resetAll(){
     if(!confirm('Apagar TODOS os dados? Isso não pode ser desfeito.\n\nDica: exporte um backup antes.')) return;
-    state={defaultIncome:0, incomes:{}, expenses:[], goals:[]};
+    state=normalizeState({defaultIncome:0, defaultIncomeMode:'monthly', defaultIncomeSchedule:[], incomes:{}, incomeModes:{}, incomeSchedules:{}, expenses:[], goals:[]});
     save(); render();
   },
   async toggleNotif(){

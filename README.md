@@ -22,6 +22,10 @@ já pagou, o que ainda falta pagar no mês e quanto tempo falta pra realizar um 
 ### Resumo
 - Card de **Saldo previsto** do mês (fica **verde/azul** no positivo e **vermelho** no negativo).
 - **Renda · Gastos · % pago**, com barra de progresso de pagamento.
+- Renda **mensal ou quinzenal**, com valor e dia de cada entrada (ex.: R$ 2.000 no dia 1 + R$ 2.000 no dia 15).
+- Cálculo do **disponível para guardar** em cada período, descontando as contas previstas e o que já foi separado.
+- Resumo organizado com **menu ☰** para acessar pagamentos, metas, lembretes, notificações e backups sem poluir a tela principal.
+- Categorias de gastos disponíveis em **Detalhes do mês**, numa seção recolhível.
 - **Já paguei** (verde) × **Falta pagar** (amarelo).
 - Gráfico **"Pra onde vai o dinheiro"** — gastos por categoria, com valores e %.
 - Lista dos **próximos pagamentos** e prévia da sua **meta**.
@@ -38,7 +42,7 @@ já pagou, o que ainda falta pagar no mês e quanto tempo falta pra realizar um 
 ### Metas
 - Cada meta com **anel de progresso** (% concluído).
 - Cálculo automático: *"Faltam R$ X · ≈ N meses"*, usando a sobra do mês.
-- Botão **"Guardar dinheiro"** pra ir somando o que você separou.
+- Botão **"Guardar dinheiro"** pra ir somando o que você separou, limitado ao valor seguro disponível na quinzena.
 
 ### Seus dados
 - **Exportar backup** (gera um arquivo `.json`) e **Restaurar backup**.
@@ -93,6 +97,6 @@ aparece no rodapé do Resumo.
 
 ## 📌 Versão
 
-**1.0.0** — primeira versão completa (Resumo, Gastos, Metas, Backup).
+**1.5.0** — renda quinzenal e cálculo de economia segura por período.
 
 *Feito com carinho para uso pessoal.* 💙
